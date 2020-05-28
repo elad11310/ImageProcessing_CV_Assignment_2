@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 import math
 
 
@@ -61,7 +60,6 @@ def flipKernel(kernel: np.ndarray):
     return img_copy
 
 
-## checking whats going on her!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 def conv2D(image, kernel):
     image_row, image_col = image.shape
     kernel_row, kernel_col = kernel.shape
@@ -97,14 +95,6 @@ def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, 
 
     magnitude = np.sqrt((x_der ** 2) + (y_der ** 2))
     directions = np.arctan2(y_der, x_der)
-    # plt.gray()
-    # f, ax = plt.subplots(1, 3)
-    # ax[0].imshow(magnitude)
-    # ax[1].imshow(inImage)
-    # ax[2].imshow(directions)
-    # plt.imshow(magnitude)
-    # plt.show()
-
     return directions, magnitude, x_der, y_der
 
 
@@ -112,11 +102,6 @@ def blurImage1(in_image: np.ndarray, kernel_size: np.ndarray) -> np.ndarray:
     # in order to get a blurred image, we need to take a gaussian filter and do convolution on the image with that filter.
     kernel = cv2.getGaussianKernel(kernel_size, math.sqrt(kernel_size))  # getting filter from cv2
     img_new = conv2D(in_image, kernel)
-    # plt.gray()
-    # f, ax = plt.subplots(1, 2)
-    # ax[0].imshow(img_new)
-    # ax[1].imshow(in_image)
-    # plt.show()
     return img_new
 
 
@@ -292,9 +277,6 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     ## step two - Apply blurring, grayscale and an edge detector on the image.
     # This is done to ensure the circles show as darkened image edges.
     Canny, Canny2 = edgeDetectionCanny(img, 0.05, 0.09)
-    # plt.gray()
-    # plt.imshow(Canny)
-    # plt.show()
 
     ##step 3 - Vote the all possible circles in accumulator.
     for i in range(0, Row):
@@ -308,6 +290,8 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
                             continue
                         A[int(a)][int(b)][r] += 1
 
+
+## finding the max value in the 3D Accumulator
     list = []
     max = 0
     for i in range(Row):
@@ -316,19 +300,19 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
                 if A[i][j][k] != 0:
                     if A[i][j][k] > max:
                         max = A[i][j][k]
-                        # IndI=i
-                        # Indj=j
-                        # R=k
 
-    ##print(max, IndI, Indj, R)
 
+
+
+    ## finding potential center of circles.
     for i in range(Row):
         for j in range(Col):
             for k in range(min_radius, max_radius):
                 if A[i][j][k] > max - 30 and A[i][j][k] <= max:
-                    ##print(A[i][j][k])
                     list.append((j, i, k))
 
+
+    ##  to strain similar circles.
     treshOld = 10
     i=0
     while(i<len(list)):
@@ -344,4 +328,4 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
         i+=1
 
 
-    print(list)
+    return list
